@@ -1,5 +1,6 @@
 import styles from "../styles/Home.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
   const [task, setTask] = useState("");
@@ -8,6 +9,7 @@ export default function Home() {
   const createTask = () => {
     //TODO: add real id
     const newTask = {
+      id: uuidv4(),
       title: task,
       isDone: false,
       creationDate: new Date(),
@@ -15,16 +17,25 @@ export default function Home() {
 
     setTasks([...tasks, newTask]);
 
-    console.log([...tasks, newTask]);
+    localStorage.setItem("tasks", JSON.stringify([...tasks, newTask]));
   };
 
-  const removeCard = (title) => {
-    const filteredTasks = tasks.filter((t) => {
-      return t.title !== title;
-    });
+  const switchTaskStatus = (id) => {
+    const index = tasks.findIndex((t) => t.id === id);
 
-    setTasks(filteredTasks);
+    tasks[index].isDone = !tasks[index].isDone;
+
+    localStorage.setItem("tasks", JSON.stringify([...tasks]));
+    setTasks([...tasks]);
   };
+
+  useEffect(() => {
+    const localTasks = localStorage.getItem("tasks");
+
+    if (localTasks) {
+      setTasks(JSON.parse(localTasks));
+    }
+  }, []);
 
   return (
     <div className={styles.main}>
@@ -38,16 +49,25 @@ export default function Home() {
         }}
       />
 
-      <button onClick={() => createTask()}>Add task</button>
+      <button
+        onClick={() => {
+          createTask();
+          setTask("");
+        }}
+      >
+        Add task
+      </button>
 
       {tasks.length ? (
         <div className={styles.cardsWrapper}>
           {tasks.map((t) => (
             <div
-              className={styles.card}
-              key={t.title}
+              className={`${styles.card} ${
+                t.isDone ? styles.completedTask : styles.incompletedTask
+              }`}
+              key={t.id}
               onClick={() => {
-                removeCard(t.title);
+                switchTaskStatus(t.id);
               }}
             >
               {t.title}

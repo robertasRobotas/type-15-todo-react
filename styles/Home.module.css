@@ -22,8 +22,15 @@
 }
 
 .card {
-  background-color: aliceblue;
   padding: 2rem;
   border-radius: 0.4rem;
   cursor: pointer;
+}
+
+.completedTask {
+  background-color: rgb(100, 180, 112);
+}
+
+.incompletedTask {
+  background-color: rgb(180, 100, 100);
 }
